@@ -1,0 +1,15 @@
+{
+  "name": "tencent-weibo",
+  "version": "1.0.0",
+  "description": "## What is CodeIgniter?",
+  "main": "public/index.php",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "serve": "php spark serve -port 40000",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "swearl@163.com",
+  "license": "MIT"
+}
