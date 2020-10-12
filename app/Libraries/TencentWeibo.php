@@ -8,6 +8,7 @@ use Config\Services;
 use DOMDocument;
 use DOMNodeList;
 use DOMXPath;
+use Exception;
 
 /**
  * Tencent Weibo Library.
@@ -91,7 +92,9 @@ class TencentWeibo {
         ];
         if (!empty($item['image-container'])) {
             $images = self::saveImages($item['image-container']);
-            $data['images'] = json_encode($images);
+            if (!empty($images)) {
+                $data['images'] = json_encode($images);
+            }
         }
         /** @var \App\Models\PostModel */
         $model = model('App\Models\PostModel');
@@ -110,7 +113,12 @@ class TencentWeibo {
             $hash = self::getUrlHash($url);
             if (!$img = $model->getByHash($hash)) {
                 CLI::write("下载 {$url}");
-                $img = self::downloadImage($url);
+                try {
+                    $img = self::downloadImage($url);
+                } catch (Exception $e) {
+                    CLI::write('下载出错, 出错原因: ' . $e->getMessage());
+                    continue;
+                }
             } else {
                 CLI::write("{$hash} 存在, 跳过下载");
             }
