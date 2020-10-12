@@ -2,6 +2,9 @@
 
 namespace App\Libraries;
 
+use CodeIgniter\CLI\CLI;
+use Config\Mimes;
+use Config\Services;
 use DOMDocument;
 use DOMNodeList;
 use DOMXPath;
@@ -65,9 +68,8 @@ class TencentWeibo {
     }
 
     /**
-     * parse images
+     * parse images.
      *
-     * @param DOMNodeList $nodes
      * @return array
      */
     public static function parseImages(DOMNodeList $nodes) {
@@ -87,15 +89,62 @@ class TencentWeibo {
             'content' => $item['post'],
             'date' => $item['date'],
         ];
-        if(!empty($item['image-container'])) {
-            $data['images'] = json_encode($item['image-container']);
+        if (!empty($item['image-container'])) {
+            $images = self::saveImages($item['image-container']);
+            $data['images'] = json_encode($images);
         }
         /** @var \App\Models\PostModel */
         $model = model('App\Models\PostModel');
         $model->insert($data);
-        if(!empty($item['repost-content'])) {
+        if (!empty($item['repost-content'])) {
             $parent_id = $model->getInsertID();
             self::saveItem($item['repost-content'], $parent_id);
         }
+    }
+
+    public static function saveImages($images) {
+        $result = [];
+        /** @var \App\Models\ImageModel */
+        $model = model('App\Models\ImageModel');
+        foreach ($images as $url) {
+            $hash = self::getUrlHash($url);
+            if (!$img = $model->getByHash($hash)) {
+                CLI::write("下载 {$url}");
+                $img = self::downloadImage($url);
+            } else {
+                CLI::write("{$hash} 存在, 跳过下载");
+            }
+            $file = empty($img['type']) ? $hash : $hash . '.' . $img['type'];
+            $result[] = $file;
+        }
+
+        return $result;
+    }
+
+    public static function downloadImage($url) {
+        $path = WRITEPATH . 'uploads/images/';
+        if (!file_exists($path)) {
+            mkdir($path, 0777, true);
+        }
+        $hash = self::getUrlHash($url);
+        $client = Services::curlrequest();
+        /** @var \CodeIgniter\HTTP\Response */
+        $res = $client->get($url);
+        $body = $res->getBody();
+        $contentType = trim($res->getHeader('Content-Type')->getValue());
+        $size = trim($res->getHeader('Content-Length')->getValue());
+        $type = Mimes::guessExtensionFromType($contentType);
+        $file = empty($type) ? "{$path}{$hash}" : "{$path}{$hash}.{$type}";
+        file_put_contents($file, $body);
+        model('App\Models\ImageModel')->insert(compact('hash', 'url', 'type', 'size'));
+
+        return compact('hash', 'type');
+    }
+
+    public static function getUrlHash($url) {
+        $array = explode('/', $url);
+        array_pop($array);
+
+        return array_pop($array);
     }
 }

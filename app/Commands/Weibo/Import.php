@@ -32,9 +32,9 @@ class Import extends BaseCommand {
             foreach ($items as $item) {
                 $node = TencentWeibo::parseItem($item->childNodes);
                 TencentWeibo::saveItem($node);
-                CLI::showProgress(++$i, $total);
+                ++$i;
+                CLI::write("{$i}/{$total}");
             }
-            CLI::showProgress(false);
             CLI::write('保存完毕');
         } catch (Exception $e) {
             $this->showError($e);
