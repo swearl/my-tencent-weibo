@@ -109,21 +109,41 @@ class TencentWeibo {
         $result = [];
         /** @var \App\Models\ImageModel */
         $model = model('App\Models\ImageModel');
-        foreach ($images as $url) {
+        $num = count($images);
+        $error = 0;
+        for ($i = 0; $i < $num; ++$i) {
+            $url = $images[$i];
             $hash = self::getUrlHash($url);
             if (!$img = $model->getByHash($hash)) {
                 CLI::write("下载 {$url}");
                 try {
                     $img = self::downloadImage($url);
                 } catch (Exception $e) {
-                    CLI::write('下载出错, 出错原因: ' . $e->getMessage());
-                    continue;
+                    if ('22 : The requested URL returned error: 404 Not Found' == $e->getMessage()) {
+                        CLI::write('图片不存在');
+                        $error = 0;
+                        continue;
+                    } else {
+                        CLI::write('出错: ' . $e->getMessage());
+                        ++$error;
+                        if ($error > 5) {
+                            CLI::write('重试超过5次, 放弃...');
+                            $error = 0;
+                        } else {
+                            CLI::write("{$error}重试中...");
+                            --$i;
+                        }
+                        continue;
+                    }
                 }
             } else {
                 CLI::write("{$hash} 存在, 跳过下载");
             }
             $file = empty($img['type']) ? $hash : $hash . '.' . $img['type'];
             $result[] = $file;
+            $error = 0;
+        }
+        foreach ($images as $url) {
         }
 
         return $result;
@@ -135,7 +155,7 @@ class TencentWeibo {
             mkdir($path, 0777, true);
         }
         $hash = self::getUrlHash($url);
-        $client = Services::curlrequest();
+        $client = Services::curlrequest(['connect_timeout' => 0, 'timeout' => 60]);
         /** @var \CodeIgniter\HTTP\Response */
         $res = $client->get($url);
         $body = $res->getBody();
