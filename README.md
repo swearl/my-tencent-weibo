@@ -1,4 +1,4 @@
-# my-tencent-weibo
+# 我的腾讯微博
 
 ## Project setup
 ```
