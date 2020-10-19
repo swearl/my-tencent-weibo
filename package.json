@@ -1,0 +1,19 @@
+{
+  "name": "my-tencent-weibo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/swearl/my-tencent-weibo.git"
+  },
+  "author": "swearl@163.com",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/swearl/my-tencent-weibo/issues"
+  },
+  "homepage": "https://github.com/swearl/my-tencent-weibo#readme"
+}
