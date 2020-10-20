@@ -19,4 +19,5 @@ module.exports = {
     });
   },
   productionSourceMap: false,
+  outputDir: 'dist/client',
 };
