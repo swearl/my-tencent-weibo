@@ -1,20 +1,22 @@
+$light-background-color: #c3eefd;
+$dark-background-color: #389fda;
+$font: 'PingFang SC', 'Hiragino Sans GB', 'Heiti SC', 'Microsoft YaHei', 'WenQuanYi Micro Hei',
+  sans-serif;
+
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
+  font-family: $font;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
+  background: $light-background-color;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 100vh;
 }
 
-#nav {
-  padding: 30px;
-
-  a {
-    font-weight: bold;
-    color: #2c3e50;
-
-    &.router-link-exact-active {
-      color: #42b983;
-    }
-  }
+.container {
+  max-width: 1000px;
+  background: #fff;
+  width: 100%;
+  margin: 0 auto;
 }

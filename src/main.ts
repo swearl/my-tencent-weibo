@@ -3,8 +3,6 @@ import App from './App';
 import './registerServiceWorker';
 import router from './router';
 import store from './store';
+import 'reset-css';
 
-createApp(App)
-  .use(store)
-  .use(router)
-  .mount('#app');
+createApp(App).use(store).use(router).mount('#app');
